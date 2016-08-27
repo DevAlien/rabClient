@@ -1,0 +1,27 @@
+{
+  "name": "rabClient",
+  "version": "1.0.0",
+  "description": "Describe rabClient here",
+  "private": true,
+  "scripts": {
+    "build": "nwb build-react-app",
+    "clean": "nwb clean-app",
+    "start": "nwb serve-react-app",
+    "test": "nwb test",
+    "test:coverage": "nwb test --coverage",
+    "test:watch": "nwb test --server"
+  },
+  "dependencies": {
+    "material-ui": "^0.15.4",
+    "react": "^15.3.1",
+    "react-dom": "^15.3.1",
+    "react-router": "^2.7.0",
+    "react-tap-event-plugin": "^1.0.0"
+  },
+  "devDependencies": {
+    "nwb": "0.12.x"
+  },
+  "author": "",
+  "license": "MIT",
+  "repository": ""
+}
