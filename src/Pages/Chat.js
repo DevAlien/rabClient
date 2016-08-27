@@ -3,6 +3,9 @@ import './Chat.css'
 import {List, ListItem} from 'material-ui/List';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
+
+import TimeViewer from '../Components/TimeViewer';
+
 const style = {
   page: {
     paddingTop: '64px',
@@ -10,6 +13,7 @@ const style = {
   }
 };
 
+const debug = true;
 
 export default class Chat extends React.Component {
 
@@ -22,25 +26,44 @@ export default class Chat extends React.Component {
     }
   }
 
+  callDeep = (data) => {
+    this.context.socket.emit('analyser:analyse', data, this.receiveMessage);
+  }
+
+  receiveMessage = (message, realMessage) => {
+    let messages = this.state.messages;
+    messages.push({time: new Date(), username: 'RAB', response: message, message: realMessage.message, raw: realMessage.raw});
+    this.setState({messages: messages});
+  }
+
   sendMessage = () => {
     let messages = this.state.messages;
-    messages.push({time: new Date(), username: 'Tu', text: this.state.message});
+    messages.push({time: new Date(), username: 'Tu', message: this.state.message});
     this.setState({messages: messages, message: ''});
-    this.context.socket.emit('questions:send', this.state.message, (message, realMessage) => {
-      console.log(realMessage)
-      let messages = this.state.messages;
-      messages.push({time: new Date(), username: 'test', text: message});
-      this.setState({messages: messages});
-    });
+    this.context.socket.emit('questions:send', this.state.message, this.receiveMessage);
   }
+
 
   printMessages() {
     return this.state.messages.map((message) => {
-      return (<ListItem
-                key={message.time.getTime()}
-                primaryText={message.username}
-                secondaryText={message.text}
-              />);
+      if (message.response && message.response.what === 'orario') {
+        return <TimeViewer data={message} callDeep={this.callDeep}/>
+      }
+      let text = <p>{message.message}</p>;
+      if (debug === true && message.response) {
+        text = (<div style={{fontSize: '14px'}}>
+                  <p className="debug-message">{JSON.stringify(message.response)}</p>
+                  {message.message.split("\n").map(function(item) {
+                    return (<p>{item}</p>);
+                  })}
+                </div>);
+      }
+      return (<ListItem key={message.time.getTime()}>
+                <div>
+                  <p>{message.username}</p>
+                  {text}
+                </div>
+              </ListItem>);
     });
   }
 
