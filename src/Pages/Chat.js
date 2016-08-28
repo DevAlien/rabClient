@@ -5,6 +5,8 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 
 import TimeViewer from '../Components/TimeViewer';
+import SimpleViewer from '../Components/SimpleViewer';
+import InformationViewer from '../Components/InformationViewer';
 
 const style = {
   page: {
@@ -47,7 +49,15 @@ export default class Chat extends React.Component {
   printMessages() {
     return this.state.messages.map((message) => {
       if (message.response && message.response.what === 'orario') {
-        return <TimeViewer data={message} callDeep={this.callDeep}/>
+        return <TimeViewer data={message} callDeep={this.callDeep} />
+      }
+
+      if (!message.response) {
+        return <SimpleViewer data={message} />
+      }
+
+      if (message.response && message.response.what === 'informazioni') {
+        return <InformationViewer data={message} />
       }
       let text = <p>{message.message}</p>;
       if (debug === true && message.response) {
@@ -78,10 +88,15 @@ export default class Chat extends React.Component {
     
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    var objDiv = document.getElementById('messages');
+    objDiv.scrollTop = objDiv.scrollHeight;
+  }
+
   render() {
     return (<div style={style.page}>
         <div className="chatArea">
-          <List className="messages">
+          <List className="messages" id="messages">
             {this.printMessages()}
           </List>
         </div>

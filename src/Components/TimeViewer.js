@@ -7,10 +7,29 @@ import Paper from 'material-ui/Paper';
 const debug = true;
 
 export default class TimeViewer extends React.Component {
+  constructor(props) {
+    super(props);
+    speechSynthesis.getVoices();
+  }
   callDeep = () => {
     let message = this.props.data.response;
     message.deep = 3;
     this.props.callDeep(message);
+  }
+
+  readText(text) {
+    console.log(text)
+    console.log('yeah')
+    var msg = new SpeechSynthesisUtterance();
+  
+    msg.text = text;
+    
+    msg.volume = 1;
+    msg.rate = 1;
+    msg.pitch = 1;
+    msg.voice = speechSynthesis.getVoices().filter(function(voice) { return voice.name == 'Google italiano'; })[0];
+    
+    window.speechSynthesis.speak(msg);
   }
 
   dataArrayToString(data) {
@@ -47,7 +66,7 @@ export default class TimeViewer extends React.Component {
         <Paper style={{width: '100%', display: 'inline-block', margin: '5px 0', padding: '5px', position: 'relative'}} zDepth={(d.sponsored ? 4 : 0)}>
           {d.sponsored && <div style={{position: 'absolute', right: '10px', color: '#5631ec', fontWeight: 'bold'}}>Sponsorizzato</div>}
           <div style={{width: '50%', float:'left'}}>
-            <h4>{d.name}</h4>
+            <h4 onClick={this.readText.bind(this, d.name)}>{d.name}</h4>
             <h5>{d.address} a {d.cityName}{d.phone && <div>{d.phone}</div>}</h5>
             <div>{this.buildTime(d.time)}</div>
             {d.sponsored && <div style={{marginTop: '5px', fontWeight: 'bold'}}>{d.sponsored}</div>}
@@ -95,12 +114,19 @@ export default class TimeViewer extends React.Component {
   }
 
   buildTime(time) {
+    let selectedTime;
+
     time = JSON.parse(time);
-    time = time[this.getToday()];
-    if (time.length === 0) {
-      return 'Oggi è chiuso';
+    selectedTime = time[this.getToday()];
+    if (selectedTime.length === 0) {
+      return (
+        <div>
+          <div>Oggi è chiuso</div>
+          <div>Domani è {this.printTime(time[this.getToday() === 6 ? 0 :this.getToday() + 1])}</div>
+        </div>
+      );
     } else {
-      return <span>{this.printTime(time)}</span>;
+      return <span>{this.printTime(selectedTime)}</span>;
     }
   }
 
@@ -126,11 +152,11 @@ export default class TimeViewer extends React.Component {
   render() {
     let message = this.props.data;
     return (
-      <div className="single-message">
+      <Paper className="single-message" style={{margin: '10px'}} zDepth={1}>
         <div>
-          <p>{message.username}</p>
+          <h3 style={{marginTop: 0}}>{message.username}</h3>
             {this.buildData()}
         </div>
-      </div>);
+      </Paper>);
   }
 }
